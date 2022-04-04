@@ -24,7 +24,7 @@ class Processor(object):
     def load_parking_meters_data(self):
         self.df = pd.read_csv(self.datapath, sep=';')
         print(self.df.shape)
-        self.df = self.df.loc[self.df.METERHEAD.isin(['Single'])]
+        self.df = self.df.loc[self.df.METERHEAD.isin(['Single', 'Double'])]
         self.df['latln'] = self.df['Geom'].apply(self.__get_latln)
         self.df['dist_from_dest'] = self.df['latln'].apply(self.__compute_distances_to_dest)
         print(self.df.shape)
@@ -57,9 +57,15 @@ class Processor(object):
             time_limit = int(meter['T_MF_9A_6P'].split(" ")[0])
             rate = float(meter['R_MF_9A_6P'].split("$")[1])
             print(f'Time limit: {time_limit} \t Rate: {rate}')
-            spot = SingleSpot(location = {'lat':location[0], 'lon':location[1]},
-                            geo_area = meter['Geo Local Area'], 
-                            rate = rate, time_limit=time_limit)
+            if meter['METERHEAD'] == 'Single':
+                spot = SingleSpot(location = {'lat':location[0], 'lon':location[1]},
+                                geo_area = meter['Geo Local Area'], 
+                                rate = rate, time_limit=time_limit)
+            elif meter['METERHEAD'] == 'Double':
+                print("******************** DOUBLE **********************")
+                spot = DoubleSpot(location = {'lat':location[0], 'lon':location[1]},
+                                geo_area = meter['Geo Local Area'], 
+                                rate = rate, time_limit=time_limit)
             # print(spot.location)
             
             #FILTER OUT INVALID ONES
