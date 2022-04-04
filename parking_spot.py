@@ -1,6 +1,6 @@
 from scipy.stats import poisson, expon
 import numpy as np
-np.random.seed(100)
+# np.random.seed(100)
 
 '''
 A spot can be - single
