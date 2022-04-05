@@ -57,7 +57,7 @@ class SingleSpot(ParkingSpot):
         self.capacity = 1
         
         self.lam_depart = 1/np.random.randint(10, 20+1) # 1 car leaves every A...X minutes
-        self.lam_arrive = 1/np.random.randint(20, 27+1) # 1 car arrives every A...X minutes
+        self.lam_arrive = 1/np.random.randint(20, 25+1) # 1 car arrives every A...X minutes
         self.form_models()
 
 class DoubleSpot(ParkingSpot):
@@ -65,6 +65,6 @@ class DoubleSpot(ParkingSpot):
         super().__init__(location, geo_area, rate, time_limit)
         self.capacity = 2
         
-        self.lam_depart = 1/np.random.randint(10, 15) # 1 car leaves every A...X minutes
-        self.lam_arrive = 1/np.random.randint(20, 25) # 1 car arrives every A...X minutes
+        self.lam_depart = 1/np.random.randint(10, 15+1) # 1 car leaves every A...X minutes
+        self.lam_arrive = 1/np.random.randint(20, 25+1) # 1 car arrives every A...X minutes
         self.form_models()
