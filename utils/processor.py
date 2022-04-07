@@ -7,13 +7,20 @@ import geopy.distance as gd
 from .tom_api import *
 import time
 from parking_spot import *
+import ast
 
 class Processor(object):
     '''
     Given an origin, dest, this class is responsible for finding all valid nearest-K parking spots
+    @datapath - where parking-meters original dataset is stored
+    @merged_datapath - where we want to store dataframe with only singles/twins (merged twins)
+
     '''
-    def __init__(self, datapath, origin, dest, topK, stay_duration, parking_budget):
+    def __init__(self, datapath, merged_datapath, origin, dest,
+                    topK, stay_duration, parking_budget, load_merged=False):
         self.datapath = datapath
+        self.merged_datapath = merged_datapath
+        self.load_merged = load_merged
         self.origin, self.dest = origin, dest
         self.topK = topK
         self.load_parking_meters_data()
@@ -22,13 +29,25 @@ class Processor(object):
         self.p_budget = parking_budget
 
     def load_parking_meters_data(self):
-        self.df = pd.read_csv(self.datapath, sep=';')
-        print(self.df.shape)
-        self.df = self.df.loc[self.df.METERHEAD.isin(['Single','Twin'])]
-        if self.df.Geom.isna().any():
-            self.df = self.df.loc[~self.df.Geom.isna()]
-        self.df['latln'] = self.df['Geom'].apply(self.__get_latln)
-        self.__merge_twins()
+        if not self.load_merged:
+            self.df = pd.read_csv(self.datapath, sep=';')
+            print(self.df.shape)
+            self.df = self.df.loc[self.df.METERHEAD.isin(['Single','Twin'])]
+            if self.df.Geom.isna().any():
+                self.df = self.df.loc[~self.df.Geom.isna()]
+            self.df['latln'] = self.df['Geom'].apply(self.__get_latln)
+            self.__merge_twins()
+            self.df.to_csv(self.merged_datapath, index=False)
+            print(f'Saved merged dataframe @ {self.merged_datapath}')
+        else:
+            try:
+                #Load clean, dataframe with twins merged
+                self.df = pd.read_csv(self.merged_datapath,
+                            converters={"latln": ast.literal_eval,
+                            "meterid":ast.literal_eval})
+                print(self.df.shape)
+            except:
+                print('Error in loading merged DataFrame; try running load_merged=False first!')
         self.df['dist_from_dest'] = self.df['latln'].apply(self.__compute_distances_to_dest)
         print(self.df.shape)
 
@@ -108,6 +127,7 @@ class Processor(object):
             rate = float(meter['R_MF_9A_6P'].split("$")[1])
             print(f'Time limit: {time_limit} \t Rate: {rate}')
             if meter['METERHEAD'] == 'Single':
+                print("~~~~~~~~~~~~~~~~~~~~ Single ~~~~~~~~~~~~~~~~~~~~")
                 spot = SingleSpot(location = {'lat':location[0], 'lon':location[1]},
                                 geo_area = meter['Geo Local Area'], 
                                 rate = rate, time_limit=time_limit)
@@ -173,4 +193,9 @@ class Processor(object):
             except:
                 print(f"Error with {i}")
                 print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-        return variables
+        if len(variables) > 0:
+            return variables
+        else:
+            raise Exception('No valid parking spots found!')
+
+        # return variables if len(variables) > 0 else raise Exception('No valid parking spots found!')
