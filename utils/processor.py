@@ -123,8 +123,11 @@ class Processor(object):
             Parse baisc info 
             '''
             location = meter.latln
+
+            #Just use M-F rates and time limits (9am-6pm); We may incorporate smarter parsing in the future
             time_limit = int(meter['T_MF_9A_6P'].split(" ")[0])
             rate = float(meter['R_MF_9A_6P'].split("$")[1])
+
             print(f'Time limit: {time_limit} \t Rate: {rate}')
             if meter['METERHEAD'] == 'Single':
                 print("~~~~~~~~~~~~~~~~~~~~ Single ~~~~~~~~~~~~~~~~~~~~")
