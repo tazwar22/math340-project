@@ -44,7 +44,7 @@ class Processor(object):
                 #Load clean, dataframe with twins merged
                 self.df = pd.read_csv(self.merged_datapath,
                             converters={"latln": ast.literal_eval,
-                            "meterid":ast.literal_eval})
+                                        "meterid":ast.literal_eval})
                 print(self.df.shape)
             except:
                 print('Error in loading merged DataFrame; try running load_merged=False first!')
@@ -197,5 +197,3 @@ class Processor(object):
             return variables
         else:
             raise Exception('No valid parking spots found!')
-
-        # return variables if len(variables) > 0 else raise Exception('No valid parking spots found!')

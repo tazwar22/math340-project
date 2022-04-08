@@ -32,6 +32,7 @@ class Solver(object):
         self.model += lpSum([self.variables[str(self.lp_vars[vi])][f'b_{vi}'] * self.lp_vars[vi] for vi in self.var_idx])
         self.__add_constraints()
         self.soln_status = None
+        print(self.model)
     
     def solve_LP(self):
         #SOLVE
@@ -101,3 +102,6 @@ class Solver(object):
         self.model += lpSum([-1 * self.variables[str(self.lp_vars[v_i])]['constraint_coeffs'][f'et_next_out'] * self.lp_vars[v_i] 
                                 for v_i in self.var_idx]) >= -np.mean([self.variables[str(self.lp_vars[v_i])]['constraint_coeffs'][f'et_next_out']
                                 for v_i in self.var_idx])
+
+        self.model += lpSum([1 * self.lp_vars[v_i] 
+                            for v_i in self.var_idx]) == 1
